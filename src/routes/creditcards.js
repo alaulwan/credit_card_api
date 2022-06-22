@@ -25,4 +25,17 @@ router.get('/:id/transactions', async (req, res) => {
 	return res.send(transactions)
 })
 
+router.put('/:id/status', async (req, res) => {
+	const { id } = req.params
+	const { active } = req.query
+	if(!active || !['TRUE', 'FALSE'].includes(active.toUpperCase())){
+		return res.status(400).send('Bad Request')
+	}
+	const result = await DB.setCardStatus(id, active.toUpperCase())
+	if(result){
+		return res.send(result)
+	}
+	res.status(404).send('NOT FOUND')
+})
+
 export default router

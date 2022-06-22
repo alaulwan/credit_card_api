@@ -82,6 +82,15 @@ export default class PostgresDB {
 		}
 	}
 
+	static async setCardStatus(creditCardId, activateStatus){
+		try {
+			await pool.query('UPDATE creditcards SET activated=$2 WHERE creditcard_id=$1', [creditCardId, activateStatus])
+			return this.getCreditCardById(creditCardId)
+		} catch (error) {
+			return error
+		}
+	}
+
 	static async getInvoicesByCardId(creditCardId){
 		try {
 			const response = await pool.query('SELECT * FROM invoices WHERE creditcard_id=$1', [creditCardId])
