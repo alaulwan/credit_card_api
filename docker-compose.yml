@@ -21,11 +21,11 @@ services:
       - 8000
     restart: always
     environment:
-      - POSTGRES_DB_NAME=creditcard
-      - POSTGRES_DB_USERNAME=creditcard
-      - POSTGRES_DB_PASS=creditcard
+      - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
+      - POSTGRES_DB_USERNAME=${POSTGRES_DB_USERNAME}
+      - POSTGRES_DB_PASS=${POSTGRES_DB_PASS}
       - POSTGRES_DB_HOST=db
-      - POSTGRES_DB_PORT=5432
+      - POSTGRES_DB_PORT=${POSTGRES_DB_PORT}
       - PORT=${PORT}
     command: >
             bash -c "npm start"
