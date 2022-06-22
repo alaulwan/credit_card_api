@@ -18,9 +18,9 @@ router.get('/:id', async (req, res) => {
 	res.status(404).send('NOT FOUND')
 })
 
-router.get('/:id/creditcard', async (req, res) => {
+router.get('/:id/creditcards', async (req, res) => {
 	const { id } = req.params
-	const creditcard = await DB.getCreditCardByCompanyId(id)
+	const creditcard = await DB.getCreditCardsByCompanyId(id)
 	if(creditcard){
 		return res.send(creditcard)
 	}

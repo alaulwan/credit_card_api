@@ -43,7 +43,7 @@
         }
       }
     },
-    "/companies/{id}/creditcard": {
+    "/companies/{id}/creditcards": {
       "get": {
         "description": "",
         "parameters": [

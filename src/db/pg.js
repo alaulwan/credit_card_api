@@ -36,13 +36,10 @@ export default class PostgresDB {
 		}
 	}
 
-	static async getCreditCardByCompanyId(companyId){
+	static async getCreditCardsByCompanyId(companyId){
 		try {
-			const company = await this.getCompanyById(companyId)
-			if(!company?.creditcard_id) return undefined
-
-			const response = await pool.query('SELECT * FROM creditcards WHERE creditcard_id=$1', [company.creditcard_id])
-			return response?.rows?.length ? response.rows[0] : undefined
+			const response = await pool.query('SELECT * FROM creditcards WHERE company_id=$1', [companyId])
+			return response?.rows?.length ? response.rows : []
 		} catch (error) {
 			console.log(error)
 			return error
@@ -52,21 +49,26 @@ export default class PostgresDB {
 	static async getCreditInfoForCompany(companyId){
 		try {
 			const company = await this.getCompanyById(companyId)
-			if(!company?.creditcard_id) return undefined
+			if(!company) return undefined
 
-			const creditcard = await this.getCreditCardById(company.creditcard_id)
+			const creditcards = await this.getCreditCardsByCompanyId(companyId)
+			if(!creditcards) return company
 
-			const invoices = await this.getInvoicesByCardId(creditcard.creditcard_id)
-			
-			const transactions = await this.getTransactionsByCardId(creditcard.creditcard_id)
-
-			return {
-				...company,
-				creditcard: {
+			const cardsInfoPromises = creditcards.map(async (creditcard) => {
+				const invoices = await this.getInvoicesByCardId(creditcard.creditcard_id)
+				const transactions = await this.getTransactionsByCardId(creditcard.creditcard_id)
+				return {
 					...creditcard,
 					invoices,
 					transactions
 				}
+			})
+
+			const cardsInfo = await Promise.all(cardsInfoPromises)
+
+			return {
+				...company,
+				cardsInfo
 			}
 		} catch (error) {
 			return error
