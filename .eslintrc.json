@@ -1,0 +1,33 @@
+{
+  "env": {
+    "node": true,
+    "commonjs": true,
+    "es6": true
+},
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2022
+  },
+  "rules":{
+    "no-use-before-define": "error",
+    "no-unused-vars": "error",
+    "no-unexpected-multiline": "warn",
+    "indent": [
+      "error",
+      "tab"
+    ],
+    "linebreak-style": [
+        "error",
+        "unix"
+    ],
+    "quotes": [
+        "error",
+        "single"
+    ],
+    "semi": [
+        "error",
+        "never"
+    ]
+  },
+  "extends":["eslint:recommended"]
+}

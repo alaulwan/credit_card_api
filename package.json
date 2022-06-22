@@ -1,0 +1,30 @@
+{
+  "name": "credit_card_api",
+  "version": "1.0.0",
+  "description": "-   **What is the URL to your application?**",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-json-modules app.js",
+    "nodemon": "nodemon --experimental-json-modules --ignore '*swagger-output.json' app.js",
+    "lint": "eslint --fix '**/*.js' --ignore-path .gitignore",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "pg": "^8.7.3",
+    "swagger-autogen": "^2.21.3",
+    "swagger-ui-express": "^4.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16",
+    "eslint": "^8.7.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^25.2.2",
+    "eslint-plugin-node": "^11.1.0"
+  }
+}
