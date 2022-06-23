@@ -48,28 +48,70 @@ export default class PostgresDB {
 
 	static async getCreditInfoForCompany(companyId){
 		try {
-			const company = await this.getCompanyById(companyId)
-			if(!company) return undefined
+			const response = await pool.query('\
+			SELECT *,tra.*, tra.invoice_id as tra_invoice_id, tra.amount as tra_amount FROM companies AS com \
+			LEFT JOIN creditcards AS crd ON crd.company_id=com.company_id \
+			LEFT JOIN invoices AS inv ON inv.creditcard_id=crd.creditcard_id \
+			LEFT JOIN transactions AS tra ON tra.creditcard_id=crd.creditcard_id \
+			WHERE com.company_id=$1'
+			,[companyId])
 
-			const creditcards = await this.getCreditCardsByCompanyId(companyId)
-			if(!creditcards) return company
+			if(!response?.rows?.length) return undefined
+			const rows = response.rows
 
-			const cardsInfoPromises = creditcards.map(async (creditcard) => {
-				const invoices = await this.getInvoicesByCardId(creditcard.creditcard_id)
-				const transactions = await this.getTransactionsByCardId(creditcard.creditcard_id)
-				return {
-					...creditcard,
-					invoices,
-					transactions
+			const result = {
+				company_id: rows[0].company_id,
+				company_name: rows[0].company_name,
+				email: rows[0].email,
+				cardsInfo: []
+			}
+
+			const cardsMap = new Map()
+			const handledInvoice = []
+			const handledTransaction = []
+			rows.forEach((row) => {
+				if (!row.creditcard_id) return
+
+				let card = cardsMap.get(row.creditcard_id)
+				if(!card){
+					card = {
+						creditcard_id: row.creditcard_id,
+						card_number: row.card_number,
+						card_limit: row.card_limit,
+						activated: row.activated,
+						invoices: [],
+						transactions: []
+					}
+					result.cardsInfo.push(card)
+					cardsMap.set(row.creditcard_id, card)
+				}
+
+				if (row.invoice_id && !handledInvoice.includes(row.invoice_id)){
+					handledInvoice.push(row.invoice_id)
+					const invoice = {
+						invoice_id: row.invoice_id,
+						invoice_date: row.invoice_date,
+						due_date: row.due_date,
+						amount: row.amount,
+						paid: row.paid
+					}
+					card.invoices.push(invoice)
+				}
+
+				if (row.transaction_id && !handledTransaction.includes(row.transaction_id)){
+					handledTransaction.push(row.transaction_id)
+					const tra = {
+						transaction_id: row.transaction_id,
+						invoice_id: row.tra_invoice_id,
+						transaction_data: row.transaction_data,
+						transaction_date: row.transaction_date,
+						amount: row.tra_amount
+					}
+					card.transactions.push(tra)
 				}
 			})
 
-			const cardsInfo = await Promise.all(cardsInfoPromises)
-
-			return {
-				...company,
-				cardsInfo
-			}
+			return result
 		} catch (error) {
 			return error
 		}
